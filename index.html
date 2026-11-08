@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0e1124">
-<meta name="description" content="AniManabu V6.0：N5-N3 日文學習、情境會話、愛莉語音與嘴型同步。">
+<meta name="description" content="AniManabu V6.0.1：N5-N3 日文學習、情境會話、愛莉語音與嘴型同步。">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AniManabu">
-<title>AniManabu V6.0｜愛莉日文學習教室</title>
+<title>AniManabu V6.0.1｜愛莉日文學習教室</title>
 <style>
 :root{--bg:#0e1124;--panel:#171b36;--pink:#ff4b8b;--cyan:#00dff2;--gold:#ffd166;--muted:#aab2c8;--line:#ffffff20;--green:#58d6a0}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#20264b 0,#0e1124 52%,#090b17 100%);color:#f4f6ff;font-family:Inter,"Noto Sans TC","Noto Sans JP",system-ui,sans-serif;min-height:100vh}
@@ -55,7 +55,7 @@ footer{text-align:center;color:#818ba8;font-size:11px;padding:16px}
 </head>
 <body>
 <header><div class="top">
- <div class="brand"><div class="logo">あ</div><div><h1>AniManabu <span style="font-size:11px;color:#ff9fc2">V6.0</span></h1><small>愛莉陪伴式日文學習 ‧ N5–N3</small></div></div>
+ <div class="brand"><div class="logo">あ</div><div><h1>AniManabu <span style="font-size:11px;color:#ff9fc2">V6.0.1</span></h1><small>愛莉陪伴式日文學習 ‧ N5–N3</small></div></div>
  <div class="actions">
   <button class="chip cyan" onclick="openModal('plan')">📅 每日計畫</button><button class="chip" onclick="openV6Settings()">⚙️ V6.0 語音設定</button><button class="chip pink" onclick="openV5Studio()">💬 自由會話</button><button class="chip" onclick="openV5Curriculum()">🗺️ N5–N3 課程</button><button class="chip" onclick="openV5Progress()">📈 學習儀表板</button><button class="chip" onclick="openCourses()">🎓 五大完整課程</button><button class="chip" onclick="openModal('curriculum')">🧭 學習路線</button>
   <button class="chip green" onclick="openExam()">🎓 模擬考</button>
@@ -191,33 +191,150 @@ const fullCourses = [
 }
 ];
 
+// Fix: quote Japanese strings safely inside inline HTML event-handler attributes.
+function jsArg(value){
+ return "'"+String(value??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\r/g,"\\r").replace(/\n/g,"\\n").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029")+"'";
+}
+
 function openCourses(){
  const html = `<p class="muted">每個情境都有完整對話、單字、文法、聽力理解及口說任務。先聽一次，再看中文，最後自己開口練習。</p>
  <div class="listitem"><strong>課程流程</strong><p>① 先聽對話　② 看日中對照　③ 學單字　④ 學文法　⑤ 聽力小測　⑥ 角色扮演錄音</p></div>
  ${fullCourses.map((c,i)=>`<div class="listitem"><strong>EP ${i+1}｜${c.title}</strong><p class="muted">${c.level} · ${c.goal}</p><button class="pink" onclick="openCourse(${i})">開始完整課程 →</button></div>`).join("")}`;
  showModalContent("五大情境完整課程",html);
 }
+// 正式聽力測驗題庫：題目與答案均依各課完整日文對話內容設計。
+const courseListeningTests = [
+ [
+  {question:"客人一開始說有幾位？",options:["一人です（一位）","二人です（兩位）","三人です（三位）","四人です（四位）"],answer:1},
+  {question:"店員推薦哪一道餐點？",options:["ラーメン（拉麵）","カレーライス（咖哩飯）","オムライス（蛋包飯）","天ぷら（天婦羅）"],answer:2},
+  {question:"客人最後點了什麼？",options:["オムライスとアイスコーヒー（蛋包飯和冰咖啡）","ラーメンと熱いお茶（拉麵和熱茶）","ケーキとジュース（蛋糕和果汁）","カレーライスと水（咖哩飯和水）"],answer:0}
+ ],
+ [
+  {question:"旅客預約時留下的姓氏是什麼？",options:["田中（田中）","佐藤（佐藤）","山本（山本）","ワン（王）"],answer:3},
+  {question:"飯店早餐供應時間是？",options:["午前六時から九時まで（上午六點到九點）","午前七時から十時まで（上午七點到十點）","午前八時から十一時まで（上午八點到十一點）","午前七時から十一時まで（上午七點到十一點）"],answer:1},
+  {question:"退房時間是幾點？",options:["午前十時（上午十點）","午前十時半（上午十點半）","午前十一時（上午十一點）","正午（中午十二點）"],answer:2}
+ ],
+ [
+  {question:"客人想找什麼尺寸的襯衫？",options:["Sサイズ（S 尺寸）","Mサイズ（M 尺寸）","Lサイズ（L 尺寸）","LLサイズ（LL 尺寸）"],answer:1},
+  {question:"襯衫的價格是多少？",options:["三千円（三千日圓）","三千五百円（三千五百日圓）","三千八百円（三千八百日圓）","八千三百円（八千三百日圓）"],answer:2},
+  {question:"客人最後選擇怎麼付款？",options:["現金（現金）","交通系カード（交通卡）","スマートフォン決済（手機支付）","クレジットカード（信用卡）"],answer:3}
+ ],
+ [
+  {question:"路人說走路到車站大約需要多久？",options:["三分（三分鐘）","五分（五分鐘）","十分（十分鐘）","十五分（十五分鐘）"],answer:1},
+  {question:"路人指示在大十字路口往哪裡轉？",options:["左に曲がる（左轉）","右に曲がる（右轉）","まっすぐ行ってから左に曲がる（直走後左轉）","後ろに戻る（往後走）"],answer:1},
+  {question:"車站入口位於哪一側？",options:["左側（左手邊）","正面（正前方）","右側（右手邊）","道路の向こう側（道路對面）"],answer:2}
+ ],
+ [
+  {question:"旅客想前往哪一個車站？",options:["東京駅（東京站）","新宿駅（新宿站）","渋谷駅（澀谷站）","池袋駅（池袋站）"],answer:2},
+  {question:"從新宿到澀谷有幾站？",options:["二駅（兩站）","三駅（三站）","四駅（四站）","五駅（五站）"],answer:1},
+  {question:"站務員說是否需要轉乘？",options:["一回乗り換える（需要轉乘一次）","二回乗り換える（需要轉乘兩次）","乗り換えない（不需要轉乘）","先にバスに乗る（要先搭巴士）"],answer:2}
+ ]
+];
+// 聽力問題日語朗讀稿：播放完完整對話後，依序朗讀題目與選項。
+const courseListeningQuestionAudio = [
+ [
+  "お客さんは最初に何人だと言いましたか。 選択肢。一人です。二人です。三人です。四人です。",
+  "店員はどの料理をおすすめしましたか。 選択肢。ラーメン。カレーライス。オムライス。天ぷら。",
+  "お客さんは最後に何を注文しましたか。 選択肢。オムライスとアイスコーヒー。ラーメンと熱いお茶。ケーキとジュース。カレーライスと水。"
+ ],
+ [
+  "旅行客が予約のときに伝えた名字は何ですか。 選択肢。田中。佐藤。山本。ワン。",
+  "ホテルの朝食は何時から何時までですか。 選択肢。午前六時から九時まで。午前七時から十時まで。午前八時から十一時まで。午前七時から十一時まで。",
+  "チェックアウトは何時ですか。 選択肢。午前十時。午前十時半。午前十一時。正午。"
+ ],
+ [
+  "お客さんはシャツのどのサイズを探していますか。 選択肢。エスサイズ。エムサイズ。エルサイズ。エルエルサイズ。",
+  "シャツはいくらですか。 選択肢。三千円。三千五百円。三千八百円。八千三百円。",
+  "お客さんは最後に何で支払いますか。 選択肢。現金。交通系カード。スマートフォン決済。クレジットカード。"
+ ],
+ [
+  "駅まで歩いて何分ぐらいかかると、道を聞かれた人は言いましたか。 選択肢。三分。五分。十分。十五分。",
+  "大きな交差点で、どちらに曲がるように言いましたか。 選択肢。左に曲がる。右に曲がる。まっすぐ行ってから左に曲がる。後ろに戻る。",
+  "駅の入口はどちら側にありますか。 選択肢。左側。正面。右側。道路の向こう側。"
+ ],
+ [
+  "旅行客はどの駅へ行きたいですか。 選択肢。東京駅。新宿駅。渋谷駅。池袋駅。",
+  "新宿から渋谷まで何駅ですか。 選択肢。二駅。三駅。四駅。五駅。",
+  "駅員は乗り換えが必要だと言いましたか。 選択肢。一回乗り換える。二回乗り換える。乗り換えない。先にバスに乗る。"
+ ]
+];
+let courseListenState = {};
+async function courseListenSpeakAndWait(text){
+ const value=String(text||"").trim(); if(!value)return;
+ if(v6Settings.endpoint){ await speakAzure(value); return; }
+ if(!window.speechSynthesis||!window.SpeechSynthesisUtterance) throw new Error("目前瀏覽器不支援語音播放");
+ const synth=window.speechSynthesis; synth.cancel();
+ await new Promise((resolve,reject)=>{
+  const u=new SpeechSynthesisUtterance(value); u.lang="ja-JP"; u.rate=0.86; u.pitch=1; u.volume=1;
+  const voices=synth.getVoices()||[]; const voice=voices.find(v=>/^ja([-_]|$)/i.test(v.lang||"")); if(voice)u.voice=voice;
+  u.onend=resolve; u.onerror=e=>reject(new Error(e.error||"語音播放失敗")); window.__aniManabuUtterance=u; synth.speak(u);
+ });
+}
+async function courseListenPlayAll(index){
+ const c=fullCourses[index]; const btn=document.getElementById("courseListenPlayAllBtn");
+ if(btn){btn.disabled=true;btn.textContent="🔊 正在播放對話與問題…";}
+ try{
+  if(window.speechSynthesis)window.speechSynthesis.cancel(); stopV6Audio();
+  await courseListenSpeakAndWait(courseListenDialogueText(c));
+  const items=courseListeningQuestionAudio[index]||[];
+  for(let i=0;i<items.length;i++) await courseListenSpeakAndWait(`第${i+1}題。${items[i]}`);
+  toast("完整對話與聽力問題已播放完畢。");
+ }catch(err){toast("語音播放遇到問題："+(err?.message||err));}
+ finally{if(btn){btn.disabled=false;btn.textContent="▶ 播放完整對話，接著播放問題";}}
+}
+function courseListenDialogueText(c){
+ return c.dialogue.map(d=>String(d[1]||"")).filter(Boolean).join("。\n");
+}
+function courseListeningPanel(index){
+ const c=fullCourses[index];
+ const questions=courseListeningTests[index]||[];
+ const state=courseListenState[index]||(courseListenState[index]={answers:{},submitted:false});
+ const audioText=courseListenDialogueText(c);
+ const score=questions.reduce((n,q,i)=>n+(state.answers[i]===q.answer?1:0),0);
+ const questionHtml=questions.map((q,qi)=>`<div class="listitem"><strong>第 ${qi+1} 題｜${q.question}</strong><div style="display:grid;gap:8px;margin-top:10px">${q.options.map((op,oi)=>`<button type="button" ${state.submitted?'disabled':''} style="display:block;width:100%;text-align:left;margin:0;${state.answers[qi]===oi?'border:2px solid var(--pink,#e98cae);background:rgba(233,140,174,.14);':''}" onclick="courseListenSet(${index},${qi},${oi})">${String.fromCharCode(65+oi)}. ${op}</button>`).join("")}</div>${state.submitted?`<p class="muted" style="margin-top:8px">${state.answers[qi]===q.answer?'✓ 答對':'✗ 正確答案：'+q.options[q.answer]}</p>`:''}</div>`).join("");
+ const transcript=state.submitted?`<details open class="listitem"><summary><strong>聽力原文與中文翻譯</strong></summary>${c.dialogue.map((d,i)=>`<p style="margin:10px 0 3px"><strong>${i+1}. ${d[0]}</strong></p><p style="font-size:17px;line-height:1.7;margin:2px 0">${d[1]}</p><p class="muted" style="margin:2px 0">${d[2]}</p>`).join("")}</details>`:'';
+ return `<div id="courseListeningPanel"><div class="listitem"><strong>聽力測驗｜${c.title}</strong><p class="muted">請先播放完整日文對話，接著聆聽日文問題與日文選項，再回答以下 ${questions.length} 題。每個選項先顯示日文、後附中文翻譯；作答前不會顯示對話原文與完整中文翻譯。</p><p><button id="courseListenPlayAllBtn" type="button" class="pink" onclick="courseListenPlayAll(${index})">▶ 播放完整對話，接著播放問題</button></p><p><button type="button" onclick="speak(${jsArg(audioText)})">↻ 只重播完整對話</button></p></div>${questionHtml}${state.submitted?`<div class="listitem"><strong>本次成績：${score}／${questions.length} 題</strong><p>${score===questions.length?'全部答對，表現很好！':score>=2?'不錯！請查看解析並再聽一次。':'請參考原文與翻譯，再練習一次。'}</p><button type="button" onclick="courseListenRetry(${index})">重新測驗</button></div>`:`<button type="button" class="pink" style="width:100%;margin:10px 0" onclick="courseListenSubmit(${index})">提交答案並查看解析</button>`}${transcript}</div>`;
+}
+function courseListenSet(index,qi,choice){
+ const state=courseListenState[index]||(courseListenState[index]={answers:{},submitted:false});
+ if(state.submitted)return;
+ state.answers[qi]=choice;
+ const panel=document.getElementById("courseListeningPanel");
+ if(panel)panel.outerHTML=courseListeningPanel(index);
+}
+function courseListenSubmit(index){
+ const questions=courseListeningTests[index]||[];
+ const state=courseListenState[index]||(courseListenState[index]={answers:{},submitted:false});
+ if(Object.keys(state.answers).length!==questions.length){toast("請先回答全部聽力問題，再提交答案。");return;}
+ state.submitted=true;
+ const panel=document.getElementById("courseListeningPanel");
+ if(panel)panel.outerHTML=courseListeningPanel(index);
+}
+function courseListenRetry(index){
+ courseListenState[index]={answers:{},submitted:false};
+ const panel=document.getElementById("courseListeningPanel");
+ if(panel)panel.outerHTML=courseListeningPanel(index);
+}
+function openCourses(){
+ const html = `<p class="muted">每個情境都有完整對話、單字、文法、正式聽力測驗及口說任務。</p>
+ <div class="listitem"><strong>課程流程</strong><p>① 播放完整聽力　② 回答理解問題　③ 提交答案　④ 查看原文與中文解析　⑤ 單字文法　⑥ 口說練習</p></div>
+ ${fullCourses.map((c,i)=>`<div class="listitem"><strong>EP ${i+1}｜${c.title}</strong><p class="muted">${c.level} · ${c.goal}</p><button class="pink" onclick="openCourse(${i})">開始完整課程 →</button></div>`).join("")}`;
+ showModalContent("五大情境完整課程",html);
+}
 function openCourse(index){
  const c=fullCourses[index];
- const dialogue=c.dialogue.map((d,i)=>`<div class="listitem"><strong>${i+1}. ${d[0]}</strong><p style="font-size:18px;line-height:1.7">${d[1]}</p><p class="muted">${d[2]}</p><button onclick="speak(${JSON.stringify(d[1])})">🔊 聽這一句</button></div>`).join("");
- const vocab=c.vocab.map(v=>`<div class="listitem"><strong>${v[0]}</strong>　${v[1]}<p class="muted">${v[2]}</p><button onclick="speak(${JSON.stringify(v[0])})">🔊 發音</button></div>`).join("");
- const grammar=c.grammar.map(g=>`<div class="listitem"><strong>${g[0]}</strong><p>${g[1]}</p><p class="muted">句型：${g[2]}</p></div>`).join("");
- const q=c.listening;
+ if(!c){toast("找不到這個課程，請返回課程列表重試。");return;}
+ const dialogue=c.dialogue.map((d,i)=>`<div class="listitem"><strong>${i+1}. ${d[0]}</strong><p style="font-size:18px;line-height:1.7">${d[1]}</p><p class="muted">${d[2]}</p><button type="button" onclick="speak(${jsArg(d[1])})">🔊 聽這一句</button></div>`).join("");
+ const vocab=c.vocab.map(v=>`<div class="listitem"><strong>${v[0]}</strong>　${v[1]}<p class="muted">${v[2]}</p><button type="button" onclick="speak(${jsArg(v[0])})">🔊 播放單字</button></div>`).join("");
+ const grammar=c.grammar.map((g,i)=>{const match=String(g[1]||"").match(/[例例如：:：]\s*([^。；;]+)/);const example=match?match[1].trim():String(g[0]||"");return `<div class="listitem"><strong>${g[0]}</strong><p>${g[1]}</p><p class="muted">句型：${g[2]}</p><button type="button" onclick="speak(${jsArg(example)})">🔊 播放文法例句</button></div>`;}).join("");
  const content=`<p class="muted">${c.level} · Can-do：${c.goal}</p>
- <div class="listitem"><strong>一、情境對話（共 ${c.dialogue.length} 句）</strong><p class="muted">先點「聽這一句」練習聽力，再遮住中文自行理解。</p></div>${dialogue}
- <h3>二、核心單字</h3>${vocab}
- <h3>三、文法重點</h3>${grammar}
- <h3>四、聽力理解</h3><div class="listitem"><strong>${q[0]}</strong>${q[1].map((a,i)=>`<button style="display:block;width:100%;text-align:left;margin:7px 0" onclick="courseListenAnswer(${index},${i})">${i+1}. ${a}</button>`).join("")}<p id="courseListenFeedback" class="muted"></p></div>
- <h3>五、口說任務</h3><div class="listitem"><p>${c.speaking}</p><button class="pink" onclick="document.querySelector('.recording-panel').scrollIntoView({behavior:'smooth',block:'center'});toast('請使用錄音室完成這項口說任務。')">🎙️ 前往錄音室練習</button></div>
+ <h3>一、聽力理解</h3>${courseListeningPanel(index)}
+ <h3>二、情境對話與跟讀</h3><p class="muted">完成聽力測驗後，才會解鎖逐句原文與翻譯。</p>${(courseListenState[index]&&courseListenState[index].submitted)?dialogue:`<div class="listitem"><strong>聽力測驗尚未完成</strong><p class="muted">提交全部答案後，這裡會顯示完整對話、中文翻譯及單句跟讀功能。</p></div>`}
+ <h3>三、核心單字</h3>${vocab}
+ <h3>四、文法重點</h3>${grammar}
+ <h3>五、口說任務</h3><div class="listitem"><p>${c.speaking}</p><button class="pink" onclick="document.querySelector('.recording-panel')?.scrollIntoView({behavior:'smooth',block:'center'});toast('請使用錄音室完成這項口說任務。')">🎙️ 前往錄音室練習</button></div>
  <button onclick="openCourses()">← 返回五大情境</button>`;
  showModalContent(`EP ${index+1}｜${c.title}`,content);
-}
-function courseListenAnswer(index,choice){
- const q=fullCourses[index].listening;
- const el=document.getElementById("courseListenFeedback");
- if(!el)return;
- if(choice===q[2]){el.textContent="答對了！很好，請再聽一次對話並跟讀。";el.style.color="#58d6a0";}
- else{el.textContent="再試一次。提示：回到對話中找關鍵數字或品項。";el.style.color="#ffb4c2";}
 }
 
 const scenes=[
@@ -286,10 +403,67 @@ function stopV6Audio(){if(v6Audio){try{v6Audio.pause();v6Audio.currentTime=0;}ca
 function playTimedVisemes(audioUrl,visemes){return new Promise((resolve,reject)=>{stopV6Audio();const a=document.getElementById("avatar");v6Audio=new Audio(audioUrl);let idx=0;const sorted=(visemes||[]).slice().sort((x,y)=>x.offsetMs-y.offsetMs);const tick=()=>{if(!v6Audio)return;const ms=v6Audio.currentTime*1000;while(idx<sorted.length&&sorted[idx].offsetMs<=ms){setV6Mouth(mouthForViseme(sorted[idx].visemeId));idx++;}if(!v6Audio.paused)v6VisemeTimer=requestAnimationFrame(tick);};v6Audio.onplay=()=>{a?.classList.add("speaking","v6-speaking");tick();};v6Audio.onended=()=>{stopV6Audio();resolve();};v6Audio.onerror=()=>{stopV6Audio();reject(new Error("語音音檔播放失敗"));};v6Audio.play().catch(reject);});}
 async function speakAzure(text){const response=await fetch(v6Settings.endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,voice:v6Settings.voice})});if(!response.ok)throw new Error("語音服務回應 "+response.status);const data=await response.json();if(!data.audioBase64||!Array.isArray(data.visemes))throw new Error("後端回傳格式不完整");const bytes=Uint8Array.from(atob(data.audioBase64),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([bytes],{type:data.mimeType||"audio/mpeg"}));try{await playTimedVisemes(url,data.visemes);}finally{URL.revokeObjectURL(url);}}
 function speak(t){
- const text=String(t||"").trim();if(!text){toast("沒有可朗讀的日文內容");return;}
- if(v6Settings.endpoint){stopV6Audio();speakAzure(text).then(()=>{}).catch(err=>{setV6SpeechStatus("Azure 語音連線失敗："+err.message);toast("Azure 語音服務暫時無法使用，請檢查後端設定。");});return;}
- if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){toast("目前瀏覽器不支援日文語音，請改用 Chrome 或 Safari。");return;}
- const synth=window.speechSynthesis,avatarEl=document.getElementById("avatar");stopV6Audio();try{synth.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="ja-JP";u.rate=.82;u.pitch=1;const voice=japaneseVoice||findJapaneseVoice();if(voice)u.voice=voice;u.onstart=()=>{avatarEl?.classList.add("speaking","v6-speaking");setV6Mouth("open");toast("愛莉正在說話（瀏覽器語音模式）");};u.onboundary=()=>setV6Mouth("wide");u.onerror=()=>{avatarEl?.classList.remove("speaking","v6-speaking");setV6Mouth("closed");};u.onend=()=>{avatarEl?.classList.remove("speaking","v6-speaking");setV6Mouth("closed");};synth.resume();synth.speak(u);}catch(e){toast("無法播放語音，請重新載入頁面後再試。");}
+  const text=String(t||"").trim();
+  if(!text){toast("沒有可朗讀的日文內容");return;}
+  if(v6Settings.endpoint){
+    stopV6Audio();
+    speakAzure(text).then(()=>{}).catch(err=>{
+      setV6SpeechStatus("Azure 語音連線失敗："+(err?.message||err));
+      toast("Azure 語音服務暫時無法使用，請檢查後端設定。");
+    });
+    return;
+  }
+  if(!window.speechSynthesis || !window.SpeechSynthesisUtterance){
+    toast("目前瀏覽器不支援語音播放，請使用最新版 Chrome 或 Safari。");
+    return;
+  }
+  const synth=window.speechSynthesis;
+  const avatarEl=document.getElementById("avatar");
+  try{
+    stopV6Audio();
+    synth.cancel();
+    const utterance=new SpeechSynthesisUtterance(text);
+    utterance.lang="ja-JP";
+    utterance.rate=0.86;
+    utterance.pitch=1;
+    utterance.volume=1;
+    const chooseVoice=()=>{
+      const voices=synth.getVoices()||[];
+      const voice=voices.find(v=>/^ja([-_]|$)/i.test(v.lang||"")) ||
+                  voices.find(v=>(v.lang||"").toLowerCase().includes("ja-jp"));
+      if(voice) utterance.voice=voice;
+    };
+    chooseVoice();
+    utterance.onstart=()=>{
+      avatarEl?.classList.add("speaking","v6-speaking");
+      setV6Mouth("open");
+      setV6SpeechStatus("正在播放日文語音");
+    };
+    utterance.onend=()=>{
+      avatarEl?.classList.remove("speaking","v6-speaking");
+      setV6Mouth("closed");
+      setV6SpeechStatus("語音播放完成");
+      if(window.__aniManabuUtterance===utterance) window.__aniManabuUtterance=null;
+    };
+    utterance.onerror=(event)=>{
+      avatarEl?.classList.remove("speaking","v6-speaking");
+      setV6Mouth("closed");
+      setV6SpeechStatus("語音播放失敗："+(event.error||"未知錯誤"));
+      toast("日文語音播放失敗。請確認手機或電腦的媒體音量，並檢查是否已安裝日文語音。");
+      if(window.__aniManabuUtterance===utterance) window.__aniManabuUtterance=null;
+    };
+    // Keep a strong reference; some mobile browsers may stop speech if the utterance is collected.
+    window.__aniManabuUtterance=utterance;
+    // Resume first because mobile browsers may leave the speech engine paused.
+    synth.resume();
+    synth.speak(utterance);
+    // A second resume helps recover from a suspended speech queue on mobile Chrome.
+    window.setTimeout(()=>{if(synth.paused)synth.resume();},250);
+  }catch(e){
+    avatarEl?.classList.remove("speaking","v6-speaking");
+    setV6Mouth("closed");
+    toast("無法啟動語音播放："+(e?.message||"請重新載入頁面後再試。"));
+  }
 }
 function openV6Settings(){document.getElementById("v6Endpoint").value=v6Settings.endpoint||"";document.getElementById("v6Voice").value=v6Settings.voice||"ja-JP-NanamiNeural";document.getElementById("v6SettingsModal").classList.add("open");}
 function closeV6Settings(){document.getElementById("v6SettingsModal").classList.remove("open");}
@@ -480,12 +654,44 @@ function v5Save(){try{localStorage.setItem(V5_KEY,JSON.stringify(v5Profile));}ca
 function openV5Curriculum(){
  const level=v5Profile.level, units=V5_UNITS[level];
  const done=units.filter((u,i)=>v5Profile.completed[level+"-"+i]).length;
- let body=`<p class="muted">依 JLPT 能力領域與 Can-do 溝通目標編排的 AniManabu 自編學習路線；不是官方教材或官方試題。</p>
+ let body=`<p class="muted">依 JLPT 能力領域與 Can-do 溝通目標編排的 AniManabu 自編學習路線；不是官方教材或官方試題。請點選單元名稱進入該單元教材。</p>
  <div class="v5-card"><b>目前級別：${level}</b>　<span class="v5-tag">已完成 ${done}/${units.length} 課</span>
  <div class="v5-meter"><span style="width:${done/units.length*100}%"></span></div>
  <div class="v5-grid">${["N5","N4","N3"].map(x=>`<button class="${x===level?"pink":""}" onclick="v5SetLevel('${x}')"><b>${x}</b><br><small>${x==="N5"?"入門基礎":x==="N4"?"初中級":"中級應用"}</small></button>`).join("")}</div></div>`;
- units.forEach((u,i)=>{const key=level+"-"+i;body+=`<div class="v5-card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${i+1}. ${u[0]}</b><span class="v5-tag">${v5Profile.completed[key]?"已完成":"待學習"}</span></div><p>${u[1]}</p><p class="muted">Can-do：${u[2]}</p><button class="green" onclick="v5Complete('${key}')">${v5Profile.completed[key]?"取消完成":"標記完成"}</button></div>`;});
+ units.forEach((u,i)=>{const key=level+"-"+i;body+=`<div class="v5-card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${i+1}. ${u[0]}</b><span class="v5-tag">${v5Profile.completed[key]?"已完成":"待學習"}</span></div><p>${u[1]}</p><p class="muted">Can-do：${u[2]}</p><button class="pink" onclick="v5OpenUnit('${level}',${i})">📖 開啟本課教材</button> <button class="green" onclick="v5Complete('${key}')">${v5Profile.completed[key]?"取消完成":"標記完成"}</button></div>`;});
  showModalContent(`${level} 課程地圖`,body);
+}
+function v5OpenUnit(level,index){
+ const units=V5_UNITS[level];const u=units&&units[index];if(!u){toast("找不到這個課程單元。");return;}
+ const examples={
+  "假名與發音":[["あいうえお","あいうえお","平假名母音"],["アイウエオ","アイウエオ","片假名母音"]],
+  "自我介紹":[["はじめまして。","はじめまして。","初次見面。"],["私は学生です。","わたしはがくせいです。","我是學生。"]],
+  "數字與時間":[["今、三時です。","いま、さんじです。","現在三點。"],["今日は月曜日です。","きょうはげつようびです。","今天是星期一。"]],
+  "日常生活":[["毎朝、七時に起きます。","まいあさ、しちじにおきます。","我每天早上七點起床。"]],
+  "餐廳點餐":[["水をください。","みずをください。","請給我水。"],["これをお願いします。","これをおねがいします。","麻煩給我這個。"]],
+  "購物與數量":[["これはいくらですか。","これはいくらですか。","這個多少錢？"]],
+  "位置與交通":[["駅はどこですか。","えきはどこですか。","車站在哪裡？"]],
+  "形容詞與過去":[["昨日は暑かったです。","きのうはあつかったです。","昨天很熱。"]],
+  "動詞變化":[["窓を開けてください。","まどをあけてください。","請打開窗戶。"],["今日は早く寝ないつもりです。","きょうははやくねないつもりです。","今天打算不早睡。"]],
+  "請求與許可":[["ここに座ってもいいですか。","ここにすわってもいいですか。","可以坐在這裡嗎？"],["写真を撮らないでください。","しゃしんをとらないでください。","請不要拍照。"]],
+  "經驗與希望":[["日本へ行ったことがあります。","にほんへいったことがあります。","我去過日本。"],["日本料理を食べたいです。","にほんりょうりをたべたいです。","我想吃日本料理。"]],
+  "原因與理由":[["雨が降っているので、出かけません。","あめがふっているので、でかけません。","因為正在下雨，所以不出門。"]],
+  "比較與選擇":[["電車よりバスのほうが安いです。","でんしゃよりバスのほうがやすいです。","公車比電車便宜。"]],
+  "可能與能力":[["日本語を少し話すことができます。","にほんごをすこしはなすことができます。","我會說一點日文。"]],
+  "授受與邀約":[["友達に本をあげました。","ともだちにほんをあげました。","我送朋友一本書。"],["一緒に映画を見ませんか。","いっしょにえいがをみませんか。","要不要一起看電影？"]],
+  "旅行問題處理":[["財布をなくしてしまいました。","さいふをなくしてしまいました。","我不小心弄丟錢包了。"]],
+  "進階連接":[["雨が降っているのに、彼は出かけました。","あめがふっているのに、かれはでかけました。","明明在下雨，他還是出門了。"]],
+  "推量與傳聞":[["彼は来ないらしいです。","かれはこないらしいです。","聽說他不來。"]],
+  "條件與假設":[["時間があれば、旅行したいです。","じかんがあれば、りょこうしたいです。","如果有時間，我想去旅行。"]],
+  "敬語與職場":[["後ほどご連絡いたします。","のちほどごれんらくいたします。","稍後我會再與您聯絡。"]],
+  "抽象表達":[["彼なら、きっとできるはずです。","かれなら、きっとできるはずです。","如果是他的話，應該一定辦得到。"]],
+  "閱讀策略":[["しかし、この方法には問題があります。","しかし、このほうほうにはもんだいがあります。","然而，這個方法有問題。"]],
+  "聽力策略":[["実は、予定が変わったんです。","じつは、よていがかわったんです。","其實，計畫改變了。"]],
+  "整合會話":[["私は賛成ですが、別の方法も考えたいです。","わたしはさんせいですが、べつのほうほうもかんがえたいです。","我贊成，但也想考慮其他方法。"]]
+ };
+ const sample=examples[u[0]]||[[u[0]+"を勉強します。",u[0]+"をべんきょうします。","學習本單元主題。"]];
+ const body=`<div class="v5-card"><span class="v5-tag">${level}｜第 ${index+1} 課</span><h3>${u[0]}</h3><p>${u[1]}</p><p class="muted">學習目標：${u[2]}</p></div><div class="v5-card"><b>本課例句與發音</b>${sample.map(x=>`<div class="listitem"><p style="font-size:19px">${x[0]}</p><p class="muted">${x[1]}｜${x[2]}</p><button onclick="speak(${jsArg(x[0])})">🔊 播放例句</button></div>`).join("")}</div><div class="v5-card"><b>本課學習提醒</b><p>先朗讀日文例句，再聽發音，最後試著不看中文自行理解。</p><button class="green" onclick="v5Complete('${level}-${index}');v5OpenUnit('${level}',${index})">標記本課完成</button></div><button onclick="openV5Curriculum()">← 返回${level}課程地圖</button>`;
+ showModalContent(`${level}｜${index+1}. ${u[0]}`,body);
 }
 function v5SetLevel(level){v5Profile.level=level;v5Save();openV5Curriculum();}
 function v5Complete(key){v5Profile.completed[key]=!v5Profile.completed[key];v5Save();openV5Curriculum();toast("課程進度已更新");}
